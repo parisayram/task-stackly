@@ -1,5 +1,6 @@
-from sqlalchemy import Column, Integer, String, Text, ForeignKey, Enum, TIMESTAMP
+from sqlalchemy import Column, Integer, String, Text
 from sqlalchemy.sql import func
+from sqlalchemy import DateTime
 
 from app.database import Base
 
@@ -7,31 +8,20 @@ from app.database import Base
 class Form(Base):
     __tablename__ = "forms"
 
-    form_id = Column(Integer, primary_key=True, autoincrement=True)
-
+    id = Column(Integer, primary_key=True, index=True)
     name = Column(String(150), nullable=False)
-
     description = Column(Text, nullable=True)
 
-    created_by = Column(
-        Integer,
-        ForeignKey("employees.employee_id"),
+    created_at = Column(
+        DateTime,
+        server_default=func.now(),
         nullable=False
     )
 
-    status = Column(
-        Enum("active", "inactive"),
-        nullable=False,
-        default="active"
-    )
-
-    created_at = Column(
-        TIMESTAMP,
-        server_default=func.current_timestamp()
-    )
-
     updated_at = Column(
-        TIMESTAMP,
-        server_default=func.current_timestamp(),
-        onupdate=func.current_timestamp()
+        DateTime,
+        server_default=func.now(),
+        onupdate=func.now(),
+        nullable=False
     )
+

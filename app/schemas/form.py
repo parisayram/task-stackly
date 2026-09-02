@@ -1,27 +1,21 @@
-from pydantic import BaseModel
-from typing import Optional
 from datetime import datetime
+from pydantic import BaseModel
 
 
 class FormCreate(BaseModel):
     name: str
-    description: Optional[str] = None
-    created_by: int
-    status: str = "active"
+    description: str | None = None
 
 
 class FormUpdate(BaseModel):
-    name: Optional[str] = None
-    description: Optional[str] = None
-    status: Optional[str] = None
+    name: str | None = None
+    description: str | None = None
 
 
 class FormResponse(BaseModel):
-    form_id: int
+    id: int
     name: str
-    description: Optional[str]
-    created_by: int
-    status: str
+    description: str | None
     created_at: datetime
     updated_at: datetime
 

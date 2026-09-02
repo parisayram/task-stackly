@@ -1,24 +1,47 @@
 from sqlalchemy.orm import Session
 
-from app.repositories import form_repository
+from app.repositories.form_repository import FormRepository
 from app.schemas.form import FormCreate, FormUpdate
 
 
-def create_form(db: Session, form_data: FormCreate):
-    return form_repository.create_form(db, form_data)
+class FormService:
 
+    def __init__(self):
+        self.repository = FormRepository()
 
-def get_forms(db: Session):
-    return form_repository.get_forms(db)
+    def create(self, db: Session, data: FormCreate):
+        return self.repository.create(db, data)
 
+    def get_all(self, db: Session):
+        return self.repository.get_all(db)
 
-def get_form(db: Session, form_id: int):
-    return form_repository.get_form(db, form_id)
+    def get_by_id(self, db: Session, form_id: int):
+        form = self.repository.get_by_id(db, form_id)
 
+        if not form:
+            raise ValueError("Form not found")
 
-def update_form(db: Session, form_id: int, form_data: FormUpdate):
-    return form_repository.update_form(db, form_id, form_data)
+        return form
 
+    def update(
+        self,
+        db: Session,
+        form_id: int,
+        data: FormUpdate
+    ):
+        form = self.get_by_id(db, form_id)
 
-def delete_form(db: Session, form_id: int):
-    return form_repository.delete_form(db, form_id)
+        return self.repository.update(
+            db,
+            form,
+            data
+        )
+
+    def delete(self, db: Session, form_id: int):
+        form = self.get_by_id(db, form_id)
+
+        self.repository.delete(db, form)
+
+        return {
+            "message": "Form deleted successfully"
+        }

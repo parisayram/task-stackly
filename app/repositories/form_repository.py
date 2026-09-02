@@ -4,53 +4,44 @@ from app.models.form import Form
 from app.schemas.form import FormCreate, FormUpdate
 
 
-def create_form(db: Session, form_data: FormCreate):
-    form = Form(
-        name=form_data.name,
-        description=form_data.description,
-        created_by=form_data.created_by,
-        status=form_data.status
-    )
+class FormRepository:
 
-    db.add(form)
-    db.commit()
-    db.refresh(form)
+    def create(self, db: Session, data: FormCreate):
+        form = Form(**data.model_dump())
 
-    return form
+        db.add(form)
+        db.commit()
+        db.refresh(form)
 
+        return form
 
-def get_forms(db: Session):
-    return db.query(Form).all()
+    def get_all(self, db: Session):
+        return db.query(Form).all()
 
+    def get_by_id(self, db: Session, form_id: int):
+        return (
+            db.query(Form)
+            .filter(Form.id == form_id)
+            .first()
+        )
 
-def get_form(db: Session, form_id: int):
-    return db.query(Form).filter(Form.form_id == form_id).first()
+    def update(
+        self,
+        db: Session,
+        form: Form,
+        data: FormUpdate
+    ):
+        values = data.model_dump(exclude_unset=True)
 
+        for key, value in values.items():
+            setattr(form, key, value)
 
-def update_form(db: Session, form_id: int, form_data: FormUpdate):
-    form = db.query(Form).filter(Form.form_id == form_id).first()
+        db.commit()
+        db.refresh(form)
 
-    if not form:
-        return None
+        return form
 
-    update_data = form_data.model_dump(exclude_unset=True)
+    def delete(self, db: Session, form: Form):
+        db.delete(form)
+        db.commit()
 
-    for key, value in update_data.items():
-        setattr(form, key, value)
-
-    db.commit()
-    db.refresh(form)
-
-    return form
-
-
-def delete_form(db: Session, form_id: int):
-    form = db.query(Form).filter(Form.form_id == form_id).first()
-
-    if not form:
-        return None
-
-    db.delete(form)
-    db.commit()
-
-    return form
