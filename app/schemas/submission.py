@@ -22,7 +22,7 @@ class SubmissionResponse(BaseModel):
 
     @field_validator("data", mode="before")
     @classmethod
-    def parse_data(cls, value):
+    def parse_data(cls, value: Any) -> Any:
         if isinstance(value, str):
             return json.loads(value)
 
