@@ -9,6 +9,9 @@ from app.schemas.form import (
     FormResponse
 )
 
+from app.schemas.submission import SubmissionResponse
+from app.services.submission_service import get_submissions_by_form
+
 from app.services.form_service import FormService
 
 
@@ -83,3 +86,16 @@ def delete_form(
             status_code=404,
             detail=str(error)
         )
+
+@router.get(
+    "/{form_id}/submissions",
+    response_model=list[SubmissionResponse]
+)
+def get_form_submission_history(
+    form_id: int,
+    db: Session = Depends(get_db)
+):
+    return get_submissions_by_form(
+        db,
+        form_id
+    )
