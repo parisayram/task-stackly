@@ -1,5 +1,8 @@
 fastapi
-uvicorn
+uvicorn[standard]
 sqlalchemy
-pymysql
+pydantic
 python-dotenv
+pymysql
+pytest
+httpx

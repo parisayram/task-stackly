@@ -1,55 +1,75 @@
-# Form Management & Dashboard API
+# Task Stackly
 
-A FastAPI backend project for managing form submissions
-and displaying filtered dashboard data.
+## Overview
+
+Task Stackly is a FastAPI-based application for managing forms,
+form fields, submissions, and dashboard information.
 
 ## Technology Stack
 
 - Python
 - FastAPI
-- MySQL
 - SQLAlchemy
 - Pydantic
-- PyMySQL
-- Uvicorn
+- MySQL
+- Pytest
 
-## Main Feature
+## Project Structure
 
-Dashboard Filters & Date Range API.
+app/
++-- routers/
++-- models/
++-- schemas/
++-- services/
++-- repositories/
++-- tests/
 
-## Dashboard API
+## Team Modules
 
-GET /dashboard/filters
+### Forms
 
-## Supported Filters
+- Form CRUD APIs
+- Form Fields APIs
+- Form Validation APIs
+- Form Submission APIs
+- Submission History & Status APIs
+- Form Search, Filter & Pagination
+- Form Permissions & Access Control
 
-- form_id
-- status
-- from_date
-- to_date
-- page
-- page_size
+### Dashboard
 
-## Example
+- Dashboard Summary API
+- User Statistics API
+- Form Statistics API
+- Submission Analytics API
+- Recent Activity API
+- Dashboard Filters & Date Range
+- Dashboard Export/Report API
 
-GET /dashboard/filters?form_id=1
+## Setup
 
-## Status Filter
+Create virtual environment:
 
-GET /dashboard/filters?status=approved
+python -m venv venv
 
-## Date Range
+Activate virtual environment:
 
-GET /dashboard/filters?from_date=2026-09-01T00:00:00&to_date=2026-09-03T23:59:59
+.\venv\Scripts\Activate.ps1
 
-## Combined Filter
+Install dependencies:
 
-GET /dashboard/filters?form_id=1&status=approved&from_date=2026-09-01T00:00:00&to_date=2026-09-03T23:59:59&page=1&page_size=10
+pip install -r requirements.txt
 
-## Run Project
+## Run Application
 
-uvicorn app.main:app --reload
+python -m uvicorn app.main:app --reload
 
-## Swagger
+## API Documentation
 
-http://127.0.0.1:8000/docs
+Swagger UI:
+
+/docs
+
+ReDoc:
+
+/redoc
