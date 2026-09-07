@@ -1,6 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 
+
 DATABASE_URL = "mysql+pymysql://root:PASSWORD@localhost:3306/employee"
 
 engine = create_engine(
