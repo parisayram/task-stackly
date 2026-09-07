@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.schemas.dashboard import SubmissionAnalyticsResponse
-from app.services.dashboard_service import get_submission_analytics
+from app.services.dashboard import fetch_submission_analytics
 
 
 router = APIRouter(
@@ -16,7 +16,7 @@ router = APIRouter(
     "/submissions",
     response_model=SubmissionAnalyticsResponse
 )
-def submission_analytics(
+def get_submission_analytics(
     db: Session = Depends(get_db)
 ):
-    return get_submission_analytics(db)
+    return fetch_submission_analytics(db)
