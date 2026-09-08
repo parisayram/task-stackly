@@ -1,75 +1,43 @@
-import json
-
+"""Owner: Sheetal (Submission) + Sumanth M T (History & Status)."""
+from typing import Optional
+from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
-from app.models.employee import Employee
-from app.models.form import Form
 from app.repositories import submission_repository
-from app.schemas.submission import SubmissionCreate
+from app.services.form_service import get_form_or_404
+from app.services.validation_service import validate_submission
+from app.schemas.submission import SubmissionCreate, StatusUpdate
 
 
-def create_submission(
-    db: Session,
-    submission: SubmissionCreate
-):
-    form = (
-        db.query(Form)
-        .filter(Form.id == submission.form_id)
-        .first()
-    )
+def create_submission(db: Session, form_id: int, data: SubmissionCreate, submitted_by: Optional[int] = None):
+    get_form_or_404(db, form_id)
 
-    if not form:
-        raise ValueError("Form not found")
+    result = validate_submission(db, form_id, data.data)
+    if not result.valid:
+        raise HTTPException(status_code=422, detail=[e.model_dump() for e in result.errors])
 
-    employee = (
-        db.query(Employee)
-        .filter(Employee.employee_id == submission.employee_id)
-        .first()
-    )
-
-    if not employee:
-        raise ValueError("Employee not found")
-
-    submission_data = json.dumps(submission.data)
-
-    return submission_repository.create_submission(
-        db=db,
-        form_id=submission.form_id,
-        employee_id=submission.employee_id,
-        data=submission_data
-    )
+    return submission_repository.create_submission(db, form_id, data, submitted_by)
 
 
-def get_submission(
-    db: Session,
-    submission_id: int
-):
-    submission = submission_repository.get_submission(
-        db,
-        submission_id
-    )
-
+def get_submission_or_404(db: Session, form_id: int, submission_id: int):
+    submission = submission_repository.get_submission(db, form_id, submission_id)
     if not submission:
-        raise ValueError("Submission not found")
-
+        raise HTTPException(status_code=404, detail="Submission not found")
     return submission
 
 
-def get_submissions_by_form(
-    db: Session,
-    form_id: int
-):
-    return submission_repository.get_submissions_by_form(
-        db,
-        form_id
-    )
+def list_submissions(db: Session, form_id: int, skip: int = 0, limit: int = 100):
+    get_form_or_404(db, form_id)
+    return submission_repository.list_submissions(db, form_id, skip, limit)
 
 
-def get_submissions_by_employee(
-    db: Session,
-    employee_id: int
-):
-    return submission_repository.get_submissions_by_employee(
-        db,
-        employee_id
-    )
+def update_status(db: Session, form_id: int, submission_id: int, payload: StatusUpdate, changed_by: Optional[int] = None):
+    submission = get_submission_or_404(db, form_id, submission_id)
+    updated = submission_repository.update_status(db, submission, payload.status)
+    submission_repository.add_status_history(db, submission.id, payload.status, changed_by, payload.note)
+    return updated
+
+
+def get_history(db: Session, form_id: int, submission_id: int):
+    get_submission_or_404(db, form_id, submission_id)
+    return submission_repository.get_status_history(db, submission_id)

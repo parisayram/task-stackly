@@ -1,23 +1,28 @@
 from datetime import datetime
-from pydantic import BaseModel
+from typing import Optional
+from pydantic import BaseModel, ConfigDict
 
 
-class FormCreate(BaseModel):
-    name: str
-    description: str | None = None
+class FormBase(BaseModel):
+    title: str
+    description: Optional[str] = None
+    is_active: bool = True
+
+
+class FormCreate(FormBase):
+    pass
 
 
 class FormUpdate(BaseModel):
-    name: str | None = None
-    description: str | None = None
+    title: Optional[str] = None
+    description: Optional[str] = None
+    is_active: Optional[bool] = None
 
 
-class FormResponse(BaseModel):
+class FormOut(FormBase):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
-    name: str
-    description: str | None
+    created_by: Optional[int] = None
     created_at: datetime
     updated_at: datetime
-
-    class Config:
-        from_attributes = True

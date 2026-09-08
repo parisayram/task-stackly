@@ -1,50 +1,43 @@
+"""Owner: Naganaboina Sumanth (Form Validation APIs)."""
+import re
+from typing import Any, Dict
 from sqlalchemy.orm import Session
 
-from app.models.form_field import FormField
+from app.repositories import field_repository
+from app.schemas.submission import ValidationError, ValidationResult
 
 
-def validate_form(
-    db: Session,
-    form_id: int,
-    data: dict
-):
-    fields = (
-        db.query(FormField)
-        .filter(FormField.form_id == form_id)
-        .all()
-    )
-
+def validate_submission(db: Session, form_id: int, data: Dict[str, Any]) -> ValidationResult:
+    fields = field_repository.list_fields(db, form_id)
     errors = []
 
     for field in fields:
+        value = data.get(str(field.id))
 
-        value = data.get(field.field_name)
-
-        if field.is_required:
-            if value is None or value == "":
-                errors.append(
-                    f"{field.label} is required"
-                )
-                continue
+        if field.is_required and (value is None or value == ""):
+            errors.append(ValidationError(field_id=field.id, message=f"'{field.label}' is required"))
+            continue
 
         if value is None:
             continue
 
-        if field.field_type == "email":
-            if "@" not in str(value):
-                errors.append(
-                    f"{field.label} must be a valid email"
-                )
+        rules = field.validation_rules or {}
 
-        elif field.field_type == "number":
-            try:
-                float(value)
-            except (ValueError, TypeError):
-                errors.append(
-                    f"{field.label} must be a number"
-                )
+        if field.field_type == "number":
+            if not isinstance(value, (int, float)):
+                errors.append(ValidationError(field_id=field.id, message=f"'{field.label}' must be a number"))
+                continue
+            if "min" in rules and value < rules["min"]:
+                errors.append(ValidationError(field_id=field.id, message=f"'{field.label}' below minimum"))
+            if "max" in rules and value > rules["max"]:
+                errors.append(ValidationError(field_id=field.id, message=f"'{field.label}' above maximum"))
 
-    return {
-        "valid": len(errors) == 0,
-        "errors": errors
-    }
+        if field.field_type == "text" and "regex" in rules:
+            if not re.match(rules["regex"], str(value)):
+                errors.append(ValidationError(field_id=field.id, message=f"'{field.label}' has invalid format"))
+
+        if field.field_type in ("select", "radio") and field.options:
+            if value not in field.options:
+                errors.append(ValidationError(field_id=field.id, message=f"'{field.label}' has invalid option"))
+
+    return ValidationResult(valid=len(errors) == 0, errors=errors)
