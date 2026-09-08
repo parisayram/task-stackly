@@ -1,7 +1,8 @@
-<<<<<<< HEAD
-from pydantic import BaseModel
-from typing import List
+from datetime import datetime
+import json
+from typing import Any, List
 
+from pydantic import BaseModel, ConfigDict, field_validator
 
 class SubmissionByForm(BaseModel):
     form_id: int
@@ -15,13 +16,6 @@ class SubmissionAnalyticsResponse(BaseModel):
     unique_employees: int
     forms_with_submissions: int
     submissions_by_form: List[SubmissionByForm]
-    
-=======
-from datetime import datetime
-from typing import Any
-import json
-
-from pydantic import BaseModel, ConfigDict, field_validator
 
 
 class SubmissionCreate(BaseModel):
@@ -46,4 +40,3 @@ class SubmissionResponse(BaseModel):
             return json.loads(value)
 
         return value
->>>>>>> f4bafd5357a1426f490c1195c11414eeeb5b67b4

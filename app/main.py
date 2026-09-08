@@ -11,6 +11,7 @@ from app.routers.form_fields import router as form_fields_router
 from app.routers.validation import router as validation_router
 from app.routers.submission import router as submission_router
 from app.routers.dashboard_users import router as dashboard_users_router
+from app.routers.dashboard_activity import router as dashboard_activity_router
 
 
 # Create database tables
@@ -30,7 +31,7 @@ app.include_router(form_fields_router)
 app.include_router(validation_router)
 app.include_router(submission_router)
 app.include_router(dashboard_users_router)
-app.include_router(dashboard_router)
+app.include_router(dashboard_activity_router)
 
 @app.get("/")
 def root():
