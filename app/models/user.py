@@ -1,7 +1,11 @@
+"""
+Minimal User table so FKs across Forms/Dashboard resolve.
+If your team already has a separate Auth service/table, replace this
+with an import from that module — keep the table name "users" and the
+columns below so nothing else breaks.
+"""
 from datetime import datetime
-
-from sqlalchemy import Boolean, DateTime, Integer, String
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import Column, Integer, String, DateTime, Boolean
 
 from app.database import Base
 
@@ -9,38 +13,8 @@ from app.database import Base
 class User(Base):
     __tablename__ = "users"
 
-    id: Mapped[int] = mapped_column(
-        Integer,
-        primary_key=True,
-        index=True
-    )
-
-    name: Mapped[str] = mapped_column(
-        String(100),
-        nullable=False
-    )
-
-    email: Mapped[str] = mapped_column(
-        String(150),
-        unique=True,
-        nullable=False,
-        index=True
-    )
-
-    role: Mapped[str] = mapped_column(
-        String(50),
-        default="employee",
-        nullable=False
-    )
-
-    is_active: Mapped[bool] = mapped_column(
-        Boolean,
-        default=True,
-        nullable=False
-    )
-
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime,
-        default=datetime.utcnow,
-        nullable=False
-    )
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(255), nullable=False)
+    email = Column(String(255), unique=True, nullable=False)
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime, default=datetime.utcnow)

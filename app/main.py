@@ -1,40 +1,28 @@
+"""
+Entry point. Run with:  uvicorn app.main:app --reload
+Everyone runs off this ONE app instance — never create a second
+FastAPI() somewhere else.
+"""
 from fastapi import FastAPI
 
-from app.database import Base, engine
+from app.database import engine, Base
+from app import models  # noqa: F401  (registers all tables on Base)
+from app.routers import forms, dashboard
 
-from app.models.form import Form
-from app.models.form_field import FormField
-from app.models.submission import Submission
-
-from app.routers.forms import router as forms_router
-from app.routers.form_fields import router as form_fields_router
-from app.routers.validation import router as validation_router
-from app.routers.submission import router as submission_router
-from app.routers.dashboard_users import router as dashboard_users_router
-from app.routers.dashboard_activity import router as dashboard_activity_router
-
-
-# Create database tables
+# Creates tables that don't exist yet. Fine for dev; use Alembic
+# migrations instead once this goes anywhere near production.
 Base.metadata.create_all(bind=engine)
 
-
 app = FastAPI(
-    title="Employee Form API",
-    description="Employee Form Management System",
-    version="1.0.0"
+    title="Backend Team API",
+    description="Forms + Dashboard modules — 14-person backend team",
+    version="0.1.0",
 )
 
+app.include_router(forms.router)
+app.include_router(dashboard.router)
 
-# Include routers
-app.include_router(forms_router)
-app.include_router(form_fields_router)
-app.include_router(validation_router)
-app.include_router(submission_router)
-app.include_router(dashboard_users_router)
-app.include_router(dashboard_activity_router)
 
-@app.get("/")
-def root():
-    return {
-        "message": "Employee Form API is running"
-    }
+@app.get("/health", tags=["Health"])
+def health_check():
+    return {"status": "ok"}
